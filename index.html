@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fast Food Tycoon 98 - Expansion Pack</title>
+<style>
+/* ===================== RESET & BASE (estilo Windows 95) ===================== */
+* { box-sizing: border-box; }
+html,body{
+  margin:0; padding:0; height:100%;
+  background:#008080; /* clássico teal desktop do Win95 */
+  font-family:'MS Sans Serif', 'Tahoma', 'Pixelated MS Sans Serif', sans-serif;
+  font-size:12px; color:#000; overflow:hidden;
+  image-rendering:pixelated;
+}
+#desktop{
+  position:relative; width:100%; height:100vh; overflow:hidden;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.05), transparent 40%),
+    repeating-linear-gradient(0deg, #017f7f 0 2px, #008080 2px 4px);
+}
+
+/* Bevel util classes (relevo Win95) */
+.raised{
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid #000; border-bottom:2px solid #000;
+  box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+  background:#c0c0c0;
+}
+.sunken{
+  border-top:2px solid #000; border-left:2px solid #000;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf;
+  background:#c0c0c0;
+}
+button.win95, .btn95{
+  font-family:inherit; font-size:12px; background:#c0c0c0;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid #000; border-bottom:2px solid #000;
+  padding:4px 10px; cursor:pointer; color:#000;
+}
+button.win95:active, .btn95:active{
+  border-top:2px solid #000; border-left:2px solid #000;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+  padding:5px 9px 3px 11px;
+}
+button.win95:disabled{ color:#808080; cursor:default; }
+input.win95, select.win95{
+  font-family:inherit; font-size:12px; padding:2px 4px;
+  border-top:2px solid #000; border-left:2px solid #000;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+  background:#fff;
+}
+
+/* ===================== TOPBAR ===================== */
+#topbar{
+  position:absolute; top:0; left:0; right:0; height:46px;
+  background:#c0c0c0; z-index:5000;
+  border-bottom:2px solid #000;
+  display:flex; align-items:center; gap:14px; padding:0 10px;
+  font-size:11px;
+}
+#topbar .stat{ display:flex; flex-direction:column; line-height:12px; padding:2px 6px; }
+#topbar .stat b{ font-size:12px; }
+#topbar .stat span.label{ color:#404040; font-size:10px; }
+#topbar .sep{ width:2px; height:30px; border-left:1px solid #808080; border-right:1px solid #fff; }
+#topbar .spacer{ flex:1; }
+#speedGroup button{ min-width:26px; }
+#speedGroup button.active{
+  border-top:2px solid #000; border-left:2px solid #000;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+  background:#a0a0a0;
+}
+
+/* ===================== TASKBAR ===================== */
+#taskbar{
+  position:absolute; bottom:0; left:0; right:0; height:34px;
+  background:#c0c0c0; border-top:2px solid #fff;
+  display:flex; align-items:center; gap:4px; padding:2px 4px; z-index:5000;
+  overflow-x:auto;
+}
+#startBtn{ font-weight:bold; padding:4px 12px; }
+.taskbtn{ font-size:11px; padding:4px 8px; min-width:90px; text-align:left; }
+.taskbtn.active{
+  border-top:2px solid #000; border-left:2px solid #000;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+}
+#clock{ margin-left:auto; padding:4px 10px; font-size:11px; }
+
+/* ===================== JANELAS ===================== */
+.window{
+  position:absolute; background:#c0c0c0; min-width:280px;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid #000; border-bottom:2px solid #000;
+  box-shadow:2px 2px 8px rgba(0,0,0,0.5);
+  display:flex; flex-direction:column; z-index:10;
+}
+.titlebar{
+  background:linear-gradient(90deg,#000080,#1084d0);
+  color:#fff; font-weight:bold; font-size:12px;
+  padding:3px 4px; display:flex; align-items:center; cursor:move;
+  user-select:none;
+}
+.titlebar .ticon{ margin-right:5px; }
+.titlebar .tclose{
+  margin-left:auto; background:#c0c0c0; color:#000; width:16px; height:14px;
+  font-size:10px; line-height:12px; text-align:center; cursor:pointer;
+  border-top:1px solid #fff; border-left:1px solid #fff;
+  border-right:1px solid #000; border-bottom:1px solid #000;
+}
+.win-body{ padding:8px; overflow-y:auto; flex:1; font-size:12px; }
+.win-body h3{ margin:4px 0 6px; font-size:13px; border-bottom:1px solid #808080; padding-bottom:2px;}
+table.data{ width:100%; border-collapse:collapse; font-size:11px; }
+table.data th, table.data td{ border:1px solid #808080; padding:3px 5px; text-align:left; }
+table.data th{ background:#a0a0a0; }
+.row{ display:flex; align-items:center; gap:6px; margin:4px 0; }
+.bar-outer{ width:100%; height:10px; background:#fff; border:1px solid #000; }
+.bar-inner{ height:100%; background:#008000; }
+.tag{ display:inline-block; padding:1px 5px; background:#000080; color:#fff; font-size:10px; border-radius:0;}
+.badge-ok{ color:#006400; font-weight:bold; }
+.badge-bad{ color:#a00000; font-weight:bold; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.card{ border:1px solid #808080; background:#d8d8d8; padding:6px; margin-bottom:6px; }
+.small{ font-size:10px; color:#404040; }
+#logbox{ height:110px; overflow-y:auto; background:#fff; border:1px solid #000; padding:4px; font-size:11px; }
+#logbox div{ border-bottom:1px dotted #ccc; padding:1px 0; }
+canvas.chart{ background:#fff; border:1px solid #000; }
+.icon-desktop{
+  position:absolute; width:70px; text-align:center; color:#fff; font-size:11px;
+  text-shadow:1px 1px 1px #000; cursor:pointer; user-select:none;
+}
+.icon-desktop .box{
+  width:40px; height:36px; margin:0 auto 4px; background:#c0c0c0;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid #000; border-bottom:2px solid #000;
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+#startMenu{
+  position:absolute; bottom:34px; left:0; width:200px; background:#c0c0c0;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid #000; border-bottom:2px solid #000;
+  z-index:6000; display:none; flex-direction:column; padding:4px;
+}
+#startMenu button{ text-align:left; padding:6px 8px; }
+.toast{
+  position:absolute; top:52px; right:10px; background:#ffffe1; border:1px solid #000;
+  padding:6px 10px; font-size:11px; box-shadow:2px 2px 4px rgba(0,0,0,0.4); z-index:9000;
+  max-width:260px;
+}
+
+/* ===================== EXPANSÃO WIN98 — novos estilos ===================== */
+.newspaper{ font-family:'Georgia','Times New Roman',serif; background:#f2ead9; border:1px solid #000; padding:8px; }
+.newspaper h4{ margin:0 0 2px; font-size:15px; border-bottom:2px solid #000; padding-bottom:2px; }
+.newspaper .headline{ font-weight:bold; font-size:12px; margin-top:8px; }
+.newspaper .byline{ font-size:10px; color:#555; font-style:italic; }
+.comm-item{ border:1px solid #808080; background:#fffef0; padding:6px; margin-bottom:6px; }
+.comm-item .ttag{ font-size:10px; padding:1px 5px; background:#800000; color:#fff; margin-right:4px; }
+.progressbar-outer{ width:100%; height:22px; background:#fff; border:2px inset #808080; padding:2px; }
+.progressbar-inner{ height:100%; background:repeating-linear-gradient(90deg,#000080 0 8px,#1084d0 8px 16px); width:0%; transition:width .15s linear; }
+.paper-report{ background:#fdfdf5; border:1px solid #999; box-shadow:3px 3px 6px rgba(0,0,0,0.4); padding:14px; font-family:'Courier New',monospace; font-size:11px; }
+.paper-report h3{ text-align:center; border-bottom:2px double #000; }
+.rank-row{ display:flex; justify-content:space-between; padding:3px 4px; border-bottom:1px dotted #999; }
+.rank-row.me{ background:#ffe9a8; font-weight:bold; }
+.minigame-area{ background:#fff; border:2px inset #808080; height:180px; position:relative; overflow:hidden; }
+.minigame-target{ position:absolute; width:36px; height:36px; font-size:26px; cursor:pointer; user-select:none; }
+#soundToggle{ font-size:14px; padding:4px 8px; }
+.doc-item{ display:flex; align-items:center; gap:6px; padding:4px; cursor:pointer; }
+.doc-item:hover{ background:#000080; color:#fff; }
+.doc-item .dicon{ font-size:18px; }
+.locked-city{ opacity:0.55; }
+</style>
+</head>
+<body>
+<div id="desktop">
+
+  <div id="topbar">
+    <div class="stat"><span class="label">Dinheiro</span><b id="statMoney">$0</b></div>
+    <div class="sep"></div>
+    <div class="stat"><span class="label">Lucro diário</span><b id="statProfit">$0</b></div>
+    <div class="sep"></div>
+    <div class="stat"><span class="label">Reputação</span><b id="statRep">0</b></div>
+    <div class="sep"></div>
+    <div class="stat"><span class="label">Clientes hoje</span><b id="statCustomers">0</b></div>
+    <div class="sep"></div>
+    <div class="stat"><span class="label">Data</span><b id="statDate">--</b></div>
+    <div class="spacer"></div>
+    <div id="speedGroup" class="row">
+      <button class="win95" data-speed="0" title="Pausar">II</button>
+      <button class="win95" data-speed="1" title="Normal">1x</button>
+      <button class="win95" data-speed="2" title="Rápido">2x</button>
+      <button class="win95" data-speed="4" title="Muito rápido">4x</button>
+    </div>
+    <div class="sep"></div>
+    <button class="win95" id="btnSave">💾 Salvar</button>
+    <button class="win95" id="btnLoad">📂 Carregar</button>
+    <input type="file" id="loadFile" accept=".json" style="display:none">
+    <button class="win95" id="soundToggle" title="Ativar/desativar sons">🔊</button>
+  </div>
+
+  <!-- Icones da area de trabalho -->
+  <div id="deskIcons"></div>
+
+  <!-- Janelas serao injetadas via JS -->
+  <div id="windowsLayer"></div>
+
+  <div id="taskbar">
+    <button class="win95" id="startBtn">🍔 Iniciar</button>
+    <div id="taskbarItems" style="display:flex; gap:4px;"></div>
+    <div id="clock">--:--</div>
+  </div>
+
+  <div id="startMenu">
+    <button class="win95" data-open="restaurant">🏪 Restaurante</button>
+    <button class="win95" data-open="menu">📋 Cardápio</button>
+    <button class="win95" data-open="employees">👥 Funcionários</button>
+    <button class="win95" data-open="inventory">📦 Estoque</button>
+    <button class="win95" data-open="marketing">📣 Marketing</button>
+    <button class="win95" data-open="research">🔬 Pesquisa</button>
+    <button class="win95" data-open="finances">💰 Finanças</button>
+    <button class="win95" data-open="expansion">🗺️ Expansão</button>
+    <button class="win95" data-open="competitors">🏁 Concorrentes</button>
+    <button class="win95" data-open="achievements">🏆 Conquistas</button>
+    <hr style="width:100%; border:1px solid #808080;">
+    <button class="win95" data-open="communication">📞 Central de Comunicação</button>
+    <button class="win95" data-open="newspaper">📰 Jornal da Cidade</button>
+    <button class="win95" data-open="market">🏆 Ranking Empresarial</button>
+    <button class="win95" data-open="documents">📁 Meus Documentos</button>
+    <button class="win95" data-open="printer">🖨️ Impressora</button>
+    <button class="win95" data-open="cdrom">💿 CD-ROM de Expansões</button>
+    <button class="win95" data-open="reports">📊 Relatórios</button>
+    <button class="win95" data-open="minigames">🎮 Mini-jogos</button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================================
+   FAST FOOD TYCOON 95
+   Jogo completo em HTML/CSS/JS puro, sem frameworks e sem dependencias externas.
+   NOTA IMPORTANTE SOBRE SALVAMENTO:
+   Artifacts do Claude nao permitem localStorage/sessionStorage no navegador.
+   Por isso o "salvamento automatico" foi substituido por um sistema robusto de
+   Exportar/Importar em arquivo JSON (botoes Salvar/Carregar na barra superior),
+   que cumpre o mesmo papel de persistir o progresso do jogador.
+   Todo o estado fica em memoria (objeto STATE) enquanto o jogo roda.
+   ============================================================================ */
+
+/* ============================ DATA.JS (dados fixos) ============================ */
+const DATA = {
+  nomesFuncionarios: ["Ana","Bruno","Carla","Diego","Elisa","Fábio","Gabi","Heitor","Ivete","João",
+    "Karla","Lucas","Marina","Nando","Otávio","Paula","Quel","Renato","Sofia","Tiago"],
+  cidades: [
+    {nome:"Vila Nova", populacao:20000, aluguel:400, poder:0.8, anoDisponivel:1995, paisId:"brasil"},
+    {nome:"Porto Alto", populacao:55000, aluguel:900, poder:1.0, anoDisponivel:1995, paisId:"brasil"},
+    {nome:"Serra Bela", populacao:35000, aluguel:600, poder:0.9, anoDisponivel:1995, paisId:"brasil"},
+    {nome:"Metrópole Sul", populacao:120000, aluguel:2200, poder:1.3, anoDisponivel:1998, paisId:"brasil"},
+    {nome:"Baía Verde", populacao:70000, aluguel:1100, poder:1.05, anoDisponivel:1998, paisId:"brasil"},
+    {nome:"Nova Capital", populacao:250000, aluguel:3500, poder:1.5, anoDisponivel:1998, paisId:"brasil"},
+    {nome:"Miami Beach (EUA)", populacao:400000, aluguel:6000, poder:2.0, anoDisponivel:2005, paisId:"eua"},
+    {nome:"Tóquio (Japão)", populacao:600000, aluguel:8000, poder:2.2, anoDisponivel:2005, paisId:"japao"},
+    {nome:"Paris (França)", populacao:350000, aluguel:7000, poder:2.1, anoDisponivel:2005, paisId:"franca"},
+  ],
+  cardapioBase: [
+    {id:"hamburguer", nome:"Hambúrguer", custo:2.5, preco:7.5, popularidade:70, qualidade:60, tempo:20},
+    {id:"cheeseburger", nome:"Cheeseburger", custo:3.2, preco:9.0, popularidade:75, qualidade:62, tempo:22},
+    {id:"batata", nome:"Batata Frita", custo:1.2, preco:5.0, popularidade:85, qualidade:65, tempo:15},
+    {id:"nuggets", nome:"Nuggets", custo:2.0, preco:6.5, popularidade:65, qualidade:60, tempo:18},
+    {id:"refrigerante", nome:"Refrigerante", custo:0.8, preco:4.0, popularidade:80, qualidade:70, tempo:5},
+    {id:"milkshake", nome:"Milkshake", custo:1.8, preco:6.0, popularidade:60, qualidade:65, tempo:12},
+    {id:"sorvete", nome:"Sorvete", custo:1.0, preco:4.5, popularidade:55, qualidade:65, tempo:8},
+  ],
+  ingredientesBase: [
+    {id:"carne", nome:"Carne", preco:8, consumoDia:20},
+    {id:"pao", nome:"Pão", preco:2, consumoDia:25},
+    {id:"queijo", nome:"Queijo", preco:5, consumoDia:15},
+    {id:"alface", nome:"Alface", preco:1.5, consumoDia:10},
+    {id:"tomate", nome:"Tomate", preco:1.8, consumoDia:10},
+    {id:"batata_ing", nome:"Batata", preco:1.2, consumoDia:20},
+    {id:"oleo", nome:"Óleo", preco:6, consumoDia:8},
+    {id:"refrigerante_ing", nome:"Xarope Refrigerante", preco:4, consumoDia:12},
+    {id:"sorvete_ing", nome:"Base Sorvete", preco:3, consumoDia:8},
+  ],
+  campanhas: [
+    {id:"radio", nome:"Rádio", custo:150, duracao:3, boost:15},
+    {id:"jornal", nome:"Jornal", custo:100, duracao:2, boost:10},
+    {id:"outdoor", nome:"Outdoor", custo:300, duracao:5, boost:20},
+    {id:"tv", nome:"TV", custo:800, duracao:7, boost:40},
+    {id:"panfletagem", nome:"Panfletagem", custo:50, duracao:1, boost:8},
+  ],
+  pesquisas: [
+    {id:"fritadeira", nome:"Nova Fritadeira", custo:1200, efeito:"eficiencia", valor:8, desc:"Aumenta eficiência da cozinha."},
+    {id:"chapas", nome:"Chapas Industriais", custo:1800, efeito:"eficiencia", valor:10, desc:"Prepara lanches mais rápido."},
+    {id:"freezer", nome:"Freezer Moderno", custo:1500, efeito:"desperdicio", valor:-10, desc:"Reduz desperdício de estoque."},
+    {id:"drivethru", nome:"Drive-thru", custo:3000, efeito:"capacidade", valor:20, desc:"Atende mais clientes por dia."},
+    {id:"delivery", nome:"Delivery", custo:3500, efeito:"clientes", valor:25, desc:"Novo canal de vendas."},
+    {id:"autoatendimento", nome:"Autoatendimento", custo:2500, efeito:"eficiencia", valor:12, desc:"Totens reduzem espera."},
+    {id:"automatizada", nome:"Cozinha Automatizada", custo:6000, efeito:"eficiencia", valor:25, desc:"Automação avançada de cozinha."},
+    {id:"cafeteria", nome:"Cafeteria", custo:2200, efeito:"eficiencia", valor:6, desc:"Novo espaço de café. Requer o Expansion Pack instalado.", requerExpansao:true},
+  ],
+  eventos: [
+    {texto:"A carne ficou mais cara neste mês.", efeito:s=>{ s.ingredientes.carne.preco*=1.25; }},
+    {texto:"Falta de batata no mercado local!", efeito:s=>{ s.ingredientes.batata_ing.qtd=Math.max(0,s.ingredientes.batata_ing.qtd-15); }},
+    {texto:"Festival da cidade atraiu muitos clientes!", efeito:s=>{ s.restaurante.clientesBonusTemp+=30; }},
+    {texto:"Fiscalização sanitária visitou a loja.", efeito:s=>{ s.restaurante.limpeza<60 ? s.empresa.reputacao-=8 : s.empresa.reputacao+=2; }},
+    {texto:"Um cliente famoso visitou seu restaurante!", efeito:s=>{ s.empresa.reputacao=Math.min(100,s.empresa.reputacao+6); }},
+    {texto:"Uma nova concorrência abriu na região.", efeito:s=>{ s.mercadoCompeticao+=10; }},
+    {texto:"Desconto especial de fornecedores!", efeito:s=>{ Object.values(s.ingredientes).forEach(i=>i.preco*=0.85); }},
+    {texto:"Black Friday! O movimento disparou.", efeito:s=>{ s.restaurante.clientesBonusTemp+=50; }},
+    {texto:"Férias escolares aumentaram o público jovem.", efeito:s=>{ s.restaurante.clientesBonusTemp+=20; }},
+  ],
+  conquistas: [
+    {id:"g10k", nome:"Ganhar $10.000", check:s=>s.empresa.caixa>=10000},
+    {id:"g100k", nome:"Ganhar $100.000", check:s=>s.empresa.caixa>=100000},
+    {id:"g1m", nome:"Ganhar $1.000.000", check:s=>s.empresa.caixa>=1000000},
+    {id:"lojas5", nome:"Abrir 5 lojas", check:s=>s.lojas.length>=5},
+    {id:"lojas20", nome:"Abrir 20 lojas", check:s=>s.lojas.length>=20},
+    {id:"clientes100k", nome:"Atender 100 mil clientes", check:s=>s.totalClientesAtendidos>=100000},
+    {id:"repmax", nome:"Reputação máxima", check:s=>s.empresa.reputacao>=100},
+    {id:"maiorrede", nome:"Tornar-se a maior rede", check:s=>s.lojas.length>=30},
+    {id:"primeiraLoja", nome:"Primeira loja aberta", check:s=>s.lojas.length>=1},
+    {id:"primeiroMilhao", nome:"Primeiro milhão", check:s=>s.empresa.caixa>=1000000},
+    {id:"cem_funcionarios", nome:"100 funcionários", check:s=>s.funcionarios.length>=100},
+    {id:"maiorredepais", nome:"Maior rede do país", check:s=>s.lojas.length>=25},
+    {id:"imperiomundial", nome:"Império mundial do hambúrguer", check:s=>s.lojas.some(l=>l.cidadeRef.anoDisponivel===2005) && s.lojas.length>=15},
+  ],
+
+  /* Personalidades de funcionários e seus efeitos */
+  personalidades: [
+    {id:"rapido", nome:"Rápido", desc:"+20% de velocidade", velocidadeMult:1.2, produtividadeMult:1.0, clientesBonus:0},
+    {id:"preguicoso", nome:"Preguiçoso", desc:"-10% de produtividade", velocidadeMult:1.0, produtividadeMult:0.9, clientesBonus:0},
+    {id:"carismatico", nome:"Carismático", desc:"Deixa mais clientes satisfeitos", velocidadeMult:1.0, produtividadeMult:1.0, clientesBonus:3},
+    {id:"neutro", nome:"Neutro", desc:"Sem traços especiais.", velocidadeMult:1.0, produtividadeMult:1.0, clientesBonus:0},
+  ],
+
+  /* Manchetes do jornal — cada uma tem um efeito real no jogo */
+  jornalHeadlines: [
+    {texto:"Pequena hamburgueria local cresce rapidamente!", efeito:s=>{ s.restaurante.clientesBonusTemp+=10; }},
+    {texto:"Preço da carne aumenta 15% este mês.", efeito:s=>{ s.ingredientes.carne.preco*=1.15; }},
+    {texto:"Nova rede internacional chega ao mercado.", efeito:s=>{ s.mercadoCompeticao+=6; }},
+    {texto:"Empresa ganha prêmio de melhor atendimento.", efeito:s=>{ s.empresa.reputacao=Math.min(100,s.empresa.reputacao+4); }},
+    {texto:"Prefeitura anuncia festival gastronômico na cidade.", efeito:s=>{ s.restaurante.clientesBonusTemp+=20; }},
+    {texto:"Consumidores reclamam do preço dos lanches na região.", efeito:s=>{ s.empresa.reputacao=Math.max(0,s.empresa.reputacao-3); }},
+    {texto:"Fornecedores locais reduzem preço do pão.", efeito:s=>{ s.ingredientes.pao.preco*=0.85; }},
+  ],
+
+  /* Propostas recebidas por telefone / fax / e-mail — o jogador aceita ou recusa */
+  propostasTemplates: [
+    {tipo:"telefone", icone:"☎️", texto:"Fornecedor oferece desconto em ingredientes.",
+      aceitar:s=>{ Object.values(s.ingredientes).forEach(i=>i.preco*=0.8); }, custoRecusar:0},
+    {tipo:"fax", icone:"📠", texto:"Contrato de aluguel renovado com condições especiais.",
+      aceitar:s=>{ s.lojas.forEach(l=>l.cidadeRef.aluguel=Math.max(200,Math.round(l.cidadeRef.aluguel*0.9))); }, custoRecusar:0},
+    {tipo:"email", icone:"📧", texto:"Cliente famoso avisou que visitará sua loja em breve!",
+      aceitar:s=>{ s.empresa.reputacao=Math.min(100,s.empresa.reputacao+8); }, custoRecusar:0},
+    {tipo:"telefone", icone:"☎️", texto:"Consultoria de marketing oferece campanha gratuita por um favor.",
+      aceitar:s=>{ s.campanhasAtivas.push({id:"cortesia",nome:"Campanha Cortesia",duracao:3,boost:12}); }, custoRecusar:0},
+    {tipo:"fax", icone:"📠", texto:"Distribuidora oferece lote extra de batatas com desconto.",
+      aceitar:s=>{ s.ingredientes.batata_ing.qtd+=40; s.ingredientes.batata_ing.preco*=0.9; }, custoRecusar:0},
+  ],
+
+  /* Itens liberados pelo Expansion Pack (CD-ROM) */
+  cardapioExpansion: [
+    {id:"cafe", nome:"Café Expresso", custo:0.9, preco:4.0, popularidade:50, qualidade:70, tempo:6},
+    {id:"sanduiche_natural", nome:"Sanduíche Natural", custo:2.6, preco:8.0, popularidade:45, qualidade:75, tempo:10},
+  ],
+
+  /* ---------------- MEGA EXPANSION PACK 1998 ---------------- */
+
+  /* Modelos de marca disponíveis na criação da empresa */
+  logos: ["🍔","🍟","🌭","🍕","🥤","⭐","🚀","🐔"],
+  mascotes: ["🐮","🐔","🐷","🤡","👨‍🍳","🦸","🐻","🐸"],
+
+  /* Ingredientes do criador de receitas */
+  receitaPaes: [
+    {id:"tradicional", nome:"Pão tradicional", custo:1.0, qualidade:5},
+    {id:"brioche", nome:"Brioche", custo:2.2, qualidade:12},
+    {id:"integral", nome:"Integral", custo:1.8, qualidade:10},
+  ],
+  receitaCarnes: [
+    {id:"simples", nome:"Hambúrguer simples", custo:2.5, qualidade:8},
+    {id:"duplo", nome:"Hambúrguer duplo", custo:4.5, qualidade:14},
+    {id:"especial", nome:"Carne especial", custo:6.0, qualidade:20},
+  ],
+  receitaExtras: [
+    {id:"queijo", nome:"Queijo", custo:0.8, qualidade:5},
+    {id:"bacon", nome:"Bacon", custo:1.4, qualidade:7},
+    {id:"molhos", nome:"Molhos especiais", custo:0.5, qualidade:4},
+    {id:"salada", nome:"Salada fresca", custo:0.6, qualidade:6},
+    {id:"especial_ing", nome:"Ingrediente especial da casa", custo:2.0, qualidade:12},
+  ],
+
+  /* Reforma das lojas */
+  reformaFachada: [
+    {id:"basica", nome:"Básica", custo:0, decoracao:0},
+    {id:"classica90", nome:"Clássica anos 90", custo:600, decoracao:12},
+    {id:"moderna", nome:"Moderna", custo:1400, decoracao:22},
+  ],
+  reformaInterior: [
+    {id:"simples", nome:"Simples", custo:0, decoracao:0, capacidade:0},
+    {id:"familiar", nome:"Familiar", custo:800, decoracao:10, capacidade:10},
+    {id:"luxuoso", nome:"Luxuoso", custo:2000, decoracao:25, capacidade:15},
+  ],
+  reformaMesas: [
+    {id:"plastico", nome:"Plástico", custo:0, decoracao:0},
+    {id:"madeira", nome:"Madeira", custo:400, decoracao:8},
+    {id:"premium", nome:"Premium", custo:1000, decoracao:16},
+  ],
+  reformaExtras: [
+    {id:"areainfantil", nome:"Área infantil", custo:700, decoracao:8, capacidade:5},
+    {id:"fliperama", nome:"Máquina de fliperama", custo:500, decoracao:6, capacidade:0},
+    {id:"tv", nome:"Televisão", custo:300, decoracao:5, capacidade:0},
+    {id:"tematica", nome:"Decorações temáticas", custo:450, decoracao:9, capacidade:0},
+  ],
+
+  /* Melhorias do Drive-Thru */
+  drivethruMelhorias: [
+    {id:"microfone", nome:"Microfone melhor", custo:300, boost:8},
+    {id:"janela", nome:"Janela automática", custo:600, boost:14},
+    {id:"computadorizado", nome:"Sistema computadorizado", custo:1500, boost:25},
+  ],
+
+  /* Promoções e produtos especiais (temporárias, com impacto na marca) */
+  promocoes: [
+    {id:"brinq_colecionaveis", nome:"Brinquedo Colecionável", custo:400, duracao:5, boost:18, impactoMarca:3, desc:"Brinquedos colecionáveis atraem famílias."},
+    {id:"brinq_bonecos", nome:"Bonecos Temáticos", custo:350, duracao:4, boost:14, impactoMarca:2, desc:"Bonecos de brinde nos combos infantis."},
+    {id:"combo_familia", nome:"Combo Família", custo:250, duracao:6, boost:16, impactoMarca:1, desc:"Combo especial para famílias."},
+    {id:"dia_hamburguer", nome:"Dia do Hambúrguer", custo:200, duracao:1, boost:30, impactoMarca:2, desc:"Um dia inteiro de promoção no hambúrguer."},
+    {id:"oferta_aniversario", nome:"Oferta de Aniversário", custo:300, duracao:3, boost:20, impactoMarca:4, desc:"Celebre o aniversário da rede com descontos."},
+    {id:"hamburguer_comemorativo", nome:"Hambúrguer Comemorativo", custo:500, duracao:7, boost:22, impactoMarca:6, desc:"Edição comemorativa exclusiva."},
+    {id:"edicao_limitada", nome:"Edição Limitada", custo:700, duracao:5, boost:25, impactoMarca:8, desc:"Produto de edição limitada, muito badalado."},
+  ],
+
+  /* Fábricas e cadeia de produção */
+  fabricas: [
+    {id:"pao", nome:"Fábrica de Pão", icone:"🥖", custo:4000, ingrediente:"pao", reducaoCusto:0.4, reducaoConsumo:0.2},
+    {id:"carne", nome:"Fazenda de Carne", icone:"🥩", custo:7000, ingrediente:"carne", reducaoCusto:0.35, reducaoConsumo:0.15},
+    {id:"batata", nome:"Produção de Batata", icone:"🍟", custo:3500, ingrediente:"batata_ing", reducaoCusto:0.4, reducaoConsumo:0.2},
+    {id:"distribuicao", nome:"Centro de Distribuição", icone:"📦", custo:9000, ingrediente:null, reducaoCusto:0, reducaoConsumo:0, desc:"Reduz problemas de estoque em toda a rede (menos desperdício)."},
+  ],
+
+  /* Funcionários especiais raros */
+  especiaisTemplates: [
+    {id:"chef", nome:"Chef Lendário", icone:"⭐👨‍🍳", habilidade:"+50% de qualidade dos produtos", custo:2500,
+      historia:"Trabalhou nas cozinhas mais renomadas antes de se juntar à sua rede."},
+    {id:"gerente", nome:"Gerente Profissional", icone:"⭐📈", habilidade:"+30% de eficiência da loja", custo:2200,
+      historia:"Especialista em operações, já geriu redes de porte nacional."},
+    {id:"carisma", nome:"Funcionário Carismático Raro", icone:"⭐😄", habilidade:"Clientes muito mais satisfeitos", custo:1800,
+      historia:"Conhecido por tratar cada cliente como se fosse da família."},
+  ],
+
+  /* Países disponíveis para expansão internacional */
+  paises: [
+    {id:"brasil", nome:"Brasil", bandeira:"🇧🇷", cultura:"Grande consumo de lanches no dia a dia.", poderMult:1.0, concorrenciaExtra:0, custoMult:1.0},
+    {id:"eua", nome:"EUA", bandeira:"🇺🇸", cultura:"Mercado extremamente competitivo.", poderMult:1.3, concorrenciaExtra:15, custoMult:1.4},
+    {id:"japao", nome:"Japão", bandeira:"🇯🇵", cultura:"Clientes muito exigentes com qualidade.", poderMult:1.2, concorrenciaExtra:8, custoMult:1.6},
+    {id:"franca", nome:"França", bandeira:"🇫🇷", cultura:"Foco em qualidade e gastronomia.", poderMult:1.15, concorrenciaExtra:5, custoMult:1.5},
+  ],
+
+  /* Eras do modo campanha */
+  campanhaEras: [
+    {id:"era1995", ano:1995, titulo:"Pequena lanchonete", objetivo:"Abrir a primeira loja.", check:s=>s.lojas.length>=1},
+    {id:"era1998", ano:1998, titulo:"Expansão regional", objetivo:"Criar uma rede com 5 lojas.", check:s=>s.lojas.length>=5},
+    {id:"era2005", ano:2005, titulo:"Competição mundial", objetivo:"Abrir uma loja em outro país.", check:s=>s.lojas.some(l=>l.cidadeRef.paisId && l.cidadeRef.paisId!=="brasil")},
+    {id:"era2010", ano:2010, titulo:"Império global", objetivo:"Ter 25 lojas e reputação acima de 85.", check:s=>s.lojas.length>=25 && s.empresa.reputacao>=85},
+  ],
+};
+
+/* ============================ ESTADO GLOBAL ============================ */
+let STATE = null;
+let paused = false;
+let speed = 1;
+let tickAccum = 0;
+const TICK_MS = 1400; // 1 dia "normal" a cada 1.4s em 1x
+
+function novoEstadoInicial(nomeEmpresa, logo, mascote, slogan){
+  const menu = {};
+  DATA.cardapioBase.forEach(p=>menu[p.id]=Object.assign({},p,{ativo:true}));
+  const ingredientes = {};
+  DATA.ingredientesBase.forEach(i=>ingredientes[i.id]=Object.assign({},i,{qtd:100}));
+
+  const vendasPorProduto = {};
+  Object.keys(menu).forEach(k=>vendasPorProduto[k]=0);
+
+  const estadoBase = {
+    empresa:{ nome:nomeEmpresa, logo:logo||"🍔", mascote:mascote||"🐮", slogan:slogan||"O melhor sabor da cidade!", caixa:5000, reputacao:50, historico:[] },
+    dia:1, mes:1, ano:1996,
+    lucroDiaAtual:0, clientesHojeAtual:0, totalClientesAtendidos:0,
+    lojas:[ criarLoja("Loja Central", DATA.cidades[0]) ],
+    menu, ingredientes,
+    funcionarios:[],
+    campanhasAtivas:[],
+    pesquisasFeitas:[],
+    eficiencia:0, // bônus de pesquisa
+    mercadoCompeticao:20,
+    concorrentes:[
+      {nome:"Burger Rival", logo:"🍔", forca:30, lojas:1, estrategia:"Preço baixo", popularidade:40},
+      {nome:"Speedy Snack", logo:"⚡", forca:25, lojas:1, estrategia:"Velocidade", popularidade:35},
+      {nome:"Mega Lanche", logo:"🏆", forca:35, lojas:1, estrategia:"Marketing agressivo", popularidade:45},
+    ],
+    conquistasFeitas:[],
+    log:[],
+    restaurante:{ clientesBonusTemp:0 }, // usado por eventos genéricos que afetam a rede toda
+    // ---- novos sistemas (Windows 98 Edition) ----
+    noticias:[],
+    propostas:[],
+    expansionPackInstalado:false,
+    vendasPorProduto,
+    // ---- Mega Expansion Pack 1998 ----
+    fabricas:{ pao:false, carne:false, batata:false, distribuicao:false },
+    candidatosEspeciais:[],
+    promocoesAtivas:[],
+    campanhaCompleta:[],
+    receitasCriadas:[],
+  };
+  estadoBase.funcionarios = [
+    criarFuncionario("Caixa", estadoBase),
+    criarFuncionario("Cozinheiro", estadoBase),
+  ];
+  return estadoBase;
+}
+
+/* Preenche campos novos em saves antigos, sem apagar nada do progresso existente */
+function migrarEstado(s){
+  if(!s.noticias) s.noticias=[];
+  if(!s.propostas) s.propostas=[];
+  if(typeof s.expansionPackInstalado!=="boolean") s.expansionPackInstalado=false;
+  if(!s.vendasPorProduto){ s.vendasPorProduto={}; Object.keys(s.menu).forEach(k=>s.vendasPorProduto[k]=0); }
+  if(s.expansionPackInstalado){
+    DATA.cardapioExpansion.forEach(p=>{ if(!s.menu[p.id]) s.menu[p.id]=Object.assign({},p,{ativo:true}); if(s.vendasPorProduto[p.id]===undefined) s.vendasPorProduto[p.id]=0; });
+  }
+  s.funcionarios.forEach(f=>{
+    if(!f.personalidade) f.personalidade = DATA.personalidades[DATA.personalidades.length-1].id;
+    if(!f.dataContratacao) f.dataContratacao = {dia:s.dia, mes:s.mes, ano:s.ano};
+  });
+  s.concorrentes.forEach((c,i)=>{
+    if(!c.logo) c.logo = ["🍔","⚡","🏆","🍟","🌟"][i%5];
+    if(!c.estrategia) c.estrategia = "Expansão gradual";
+    if(typeof c.popularidade!=="number") c.popularidade = 30+Math.random()*30;
+  });
+  s.lojas.forEach(l=>{
+    if(!l.cidadeRef.anoDisponivel) l.cidadeRef.anoDisponivel=1995;
+    if(!l.cidadeRef.paisId) l.cidadeRef.paisId="brasil";
+    if(!l.reforma) l.reforma = {fachada:"basica", interior:"simples", mesas:"plastico", extras:[]};
+    if(!l.driveThru) l.driveThru = {ativo:false, nivel:0};
+    if(typeof l.lucroAcumulado!=="number") l.lucroAcumulado = 0;
+  });
+  if(!s.empresa.logo) s.empresa.logo = "🍔";
+  if(!s.empresa.mascote) s.empresa.mascote = "🐮";
+  if(!s.empresa.slogan) s.empresa.slogan = "O melhor sabor da cidade!";
+  if(!s.fabricas) s.fabricas = { pao:false, carne:false, batata:false, distribuicao:false };
+  if(!s.candidatosEspeciais) s.candidatosEspeciais = [];
+  if(!s.promocoesAtivas) s.promocoesAtivas = [];
+  if(!s.campanhaCompleta) s.campanhaCompleta = [];
+  if(!s.receitasCriadas) s.receitasCriadas = [];
+  s.funcionarios.forEach(f=>{ if(f.especial===undefined) f.especial=null; });
+}
+
+function criarLoja(nome,cidade){
+  return {
+    id:"loja_"+Math.random().toString(36).slice(2,8),
+    nome, cidade:cidade.nome, cidadeRef:cidade,
+    nivel:1, capacidade:80, limpeza:80, decoracao:50, eficiencia:50,
+    clientesHoje:0, esperaMedia:4, clientesBonusTemp:0,
+  };
+}
+function criarFuncionario(tipo, estadoRef){
+  const nome = DATA.nomesFuncionarios[Math.floor(Math.random()*DATA.nomesFuncionarios.length)];
+  const salarioBase = {Caixa:60,Cozinheiro:70,Faxineiro:50,Gerente:120}[tipo]||60;
+  const personalidade = DATA.personalidades[Math.floor(Math.random()*DATA.personalidades.length)];
+  const ref = estadoRef || STATE;
+  return {
+    id:"f_"+Math.random().toString(36).slice(2,8),
+    nome, tipo, salario:salarioBase, experiencia:1,
+    velocidade:40+Math.floor(Math.random()*30),
+    humor:70+Math.floor(Math.random()*20),
+    cansaco:0,
+    personalidade: personalidade.id,
+    dataContratacao: ref ? {dia:ref.dia, mes:ref.mes, ano:ref.ano} : {dia:1,mes:1,ano:1996},
+  };
+}
+
+/* ============================ ECONOMY.JS (simulação diária) ============================ */
+function simularDia(){
+  const s = STATE;
+  let receitaTotal=0, gastoTotal=0;
+
+  // multiplicador de produtividade da equipe (rápido/preguiçoso afetam a capacidade efetiva)
+  let equipeMult = 1;
+  if(s.funcionarios.length){
+    const soma = s.funcionarios.reduce((a,f)=>{
+      const perso = DATA.personalidades.find(p=>p.id===f.personalidade) || {velocidadeMult:1,produtividadeMult:1};
+      return a + perso.velocidadeMult*perso.produtividadeMult;
+    },0);
+    equipeMult = soma/s.funcionarios.length;
+  }
+
+  // consumo de ingredientes e reposição manual (o jogador compra na tela de estoque)
+  s.lojas.forEach(loja=>{
+    // clientes possíveis pela reputação, cidade, marketing, competição
+    const boostMarketing = s.campanhasAtivas.reduce((a,c)=>a+c.boost,0);
+    const basePot = (loja.cidadeRef.populacao/2000) * (loja.cidadeRef.poder);
+    let clientesPotenciais = Math.round(basePot * (s.empresa.reputacao/50) * (1+boostMarketing/100));
+    clientesPotenciais -= Math.round(clientesPotenciais * (s.mercadoCompeticao/200));
+    clientesPotenciais += loja.clientesBonusTemp + s.restaurante.clientesBonusTemp;
+    clientesPotenciais = Math.max(0, clientesPotenciais);
+
+    const atendidos = Math.min(Math.round((loja.capacidade + s.eficiencia)*equipeMult), clientesPotenciais);
+    loja.clientesHoje = atendidos;
+    s.totalClientesAtendidos += atendidos;
+
+    // vendas distribuídas pelo cardápio ativo, ponderado por popularidade
+    const itensAtivos = Object.values(s.menu).filter(m=>m.ativo);
+    const pesoTotal = itensAtivos.reduce((a,m)=>a+m.popularidade,0)||1;
+    itensAtivos.forEach(item=>{
+      const qtdVendida = Math.round(atendidos * (item.popularidade/pesoTotal) * 1.3);
+      receitaTotal += qtdVendida*item.preco;
+      gastoTotal += qtdVendida*item.custo;
+      if(s.vendasPorProduto[item.id]===undefined) s.vendasPorProduto[item.id]=0;
+      s.vendasPorProduto[item.id] += qtdVendida;
+    });
+
+    // desgaste da loja
+    loja.limpeza = Math.max(0, loja.limpeza-1);
+    loja.esperaMedia = Math.max(1, 8 - Math.round(s.eficiencia/10));
+    loja.clientesBonusTemp = Math.max(0, loja.clientesBonusTemp-5);
+  });
+  s.restaurante.clientesBonusTemp = Math.max(0, s.restaurante.clientesBonusTemp-10);
+
+  // salários e personalidade da equipe
+  let bonusCarisma = 0;
+  s.funcionarios.forEach(f=>{
+    gastoTotal += f.salario/30; // salário mensal ratado por dia
+    f.cansaco = Math.min(100, f.cansaco+3);
+    f.humor = Math.max(0, f.humor - (f.cansaco>70?2:0));
+    if(Math.random()<0.02){ f.experiencia++; f.velocidade=Math.min(100,f.velocidade+2); }
+    const perso = DATA.personalidades.find(p=>p.id===f.personalidade);
+    if(perso && perso.clientesBonus) bonusCarisma += perso.clientesBonus;
+  });
+  if(bonusCarisma>0) s.restaurante.clientesBonusTemp += Math.round(bonusCarisma*0.3);
+
+  // aluguel das lojas
+  s.lojas.forEach(loja=> gastoTotal += loja.cidadeRef.aluguel/30);
+
+  // impostos simples (8% sobre receita)
+  const impostos = receitaTotal*0.08;
+  gastoTotal += impostos;
+
+  // campanhas de marketing perdem duração
+  s.campanhasAtivas = s.campanhasAtivas.filter(c=>{ c.duracao--; return c.duracao>0; });
+
+  // reputação evolui conforme limpeza/qualidade média
+  const limpezaMedia = s.lojas.reduce((a,l)=>a+l.limpeza,0)/s.lojas.length;
+  const qualidadeMedia = Object.values(s.menu).reduce((a,m)=>a+m.qualidade,0)/Object.values(s.menu).length;
+  let deltaRep = 0;
+  if(limpezaMedia<40) deltaRep -= 1;
+  if(qualidadeMedia>70) deltaRep += 0.5;
+  if(qualidadeMedia<40) deltaRep -= 0.5;
+  s.empresa.reputacao = Math.max(0, Math.min(100, s.empresa.reputacao+deltaRep));
+
+  const lucro = receitaTotal-gastoTotal;
+  s.empresa.caixa += lucro;
+  s.lucroDiaAtual = lucro;
+  s.clientesHojeAtual = s.lojas.reduce((a,l)=>a+l.clientesHoje,0);
+  s.empresa.historico.push({dia:s.dia,mes:s.mes,ano:s.ano,receita:receitaTotal,gasto:gastoTotal,lucro});
+  if(s.empresa.historico.length>200) s.empresa.historico.shift();
+
+  // IA dos concorrentes (mais inteligentes: preço, propaganda, expansão, produtos, roubo de equipe)
+  s.concorrentes.forEach(c=>{
+    const acao = Math.random();
+    if(acao<0.015){ c.lojas++; c.forca+=3; c.estrategia="Expansão agressiva"; adicionarLog(`${c.nome} abriu uma nova loja.`); }
+    else if(acao<0.05){ c.forca=Math.min(100,c.forca+2); c.popularidade=Math.min(100,c.popularidade+3); c.estrategia="Redução de preços"; }
+    else if(acao<0.09){ c.popularidade=Math.min(100,c.popularidade+5); c.estrategia="Campanha de propaganda"; }
+    else if(acao<0.11){ c.estrategia="Lançou produto novo"; c.popularidade=Math.min(100,c.popularidade+2); }
+    else if(acao<0.125 && s.funcionarios.length>1){
+      const alvo = s.funcionarios[Math.floor(Math.random()*s.funcionarios.length)];
+      if(alvo.humor<50){
+        s.funcionarios = s.funcionarios.filter(f=>f.id!==alvo.id);
+        adicionarLog(`⚠️ ${c.nome} contratou seu funcionário ${alvo.nome} (estava desmotivado).`);
+      }
+    }
+  });
+  s.mercadoCompeticao = Math.min(90, s.concorrentes.reduce((a,c)=>a+c.forca+c.popularidade*0.2,0)/s.concorrentes.length*0.5);
+
+  // Jornal da Cidade — nova manchete a cada poucos dias
+  if(Math.random()<0.16){
+    const noticia = DATA.jornalHeadlines[Math.floor(Math.random()*DATA.jornalHeadlines.length)];
+    noticia.efeito(s);
+    s.noticias.unshift({texto:noticia.texto, dia:s.dia, mes:s.mes, ano:s.ano});
+    if(s.noticias.length>40) s.noticias.pop();
+  }
+
+  // Central de comunicação — proposta ocasional aguardando decisão do jogador
+  if(Math.random()<0.07 && s.propostas.length<3){
+    const tpl = DATA.propostasTemplates[Math.floor(Math.random()*DATA.propostasTemplates.length)];
+    s.propostas.push({id:"p_"+Math.random().toString(36).slice(2,8), tipo:tpl.tipo, icone:tpl.icone, texto:tpl.texto, templateIdx:DATA.propostasTemplates.indexOf(tpl)});
+    mostrarToast(tpl.icone+" Nova proposta recebida na Central de Comunicação.");
+    tocarSom("notificacao");
+  }
+
+  // avançar calendário
+  s.dia++;
+  if(s.dia>30){ s.dia=1; s.mes++; }
+  if(s.mes>12){ s.mes=1; s.ano++; }
+
+  // evento aleatório (10% de chance por dia)
+  if(Math.random()<0.10){
+    const ev = DATA.eventos[Math.floor(Math.random()*DATA.eventos.length)];
+    ev.efeito(s);
+    adicionarLog("⚡ Evento: "+ev.texto);
+  }
+
+  verificarConquistas();
+}
+
+function adicionarLog(msg){
+  STATE.log.unshift(`[Dia ${STATE.dia}/${STATE.mes}/${STATE.ano}] ${msg}`);
+  if(STATE.log.length>60) STATE.log.pop();
+  const box=document.getElementById("logbox");
+  if(box) renderLog();
+}
+
+function verificarConquistas(){
+  DATA.conquistas.forEach(c=>{
+    if(!STATE.conquistasFeitas.includes(c.id) && c.check(STATE)){
+      STATE.conquistasFeitas.push(c.id);
+      adicionarLog("🏆 Conquista desbloqueada: "+c.nome);
+      mostrarToast("🏆 Conquista: "+c.nome);
+    }
+  });
+}
+
+function mostrarToast(msg){
+  const t=document.createElement("div");
+  t.className="toast"; t.textContent=msg;
+  document.getElementById("desktop").appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+/* ============================ RESEARCH / MARKETING / EXPANSION actions ============================ */
+function comprarPesquisa(id){
+  const p = DATA.pesquisas.find(x=>x.id===id);
+  if(!p || STATE.pesquisasFeitas.includes(id) || STATE.empresa.caixa<p.custo) return;
+  if(p.requerExpansao && !STATE.expansionPackInstalado) return;
+  STATE.empresa.caixa -= p.custo;
+  STATE.pesquisasFeitas.push(id);
+  if(p.efeito==="eficiencia") STATE.eficiencia += p.valor;
+  if(p.efeito==="capacidade") STATE.lojas.forEach(l=>l.capacidade+=p.valor);
+  if(p.efeito==="clientes") STATE.restaurante.clientesBonusTemp += p.valor;
+  if(p.efeito==="desperdicio") { /* reduz consumo diário */
+    Object.values(STATE.ingredientes).forEach(i=>i.consumoDia=Math.max(1,Math.round(i.consumoDia*(1+p.valor/100))));
+  }
+  adicionarLog("🔬 Pesquisa concluída: "+p.nome);
+  mostrarToast("🔬 Pesquisa concluída: "+p.nome);
+  render();
+}
+function lancarCampanha(id){
+  const c = DATA.campanhas.find(x=>x.id===id);
+  if(!c || STATE.empresa.caixa<c.custo) return;
+  STATE.empresa.caixa -= c.custo;
+  STATE.campanhasAtivas.push(Object.assign({},c));
+  adicionarLog("📣 Campanha iniciada: "+c.nome);
+  render();
+}
+function abrirNovaLoja(idxCidade){
+  const cidade = DATA.cidades[idxCidade];
+  const custoAbertura = 3000 + cidade.aluguel*5;
+  if(STATE.empresa.caixa<custoAbertura) return;
+  STATE.empresa.caixa -= custoAbertura;
+  STATE.lojas.push(criarLoja(cidade.nome+" #"+(STATE.lojas.length+1), cidade));
+  adicionarLog("🏗️ Nova loja aberta em "+cidade.nome);
+  mostrarToast("Nova loja aberta em "+cidade.nome+"!");
+  render();
+}
+function contratarFuncionario(tipo){
+  const custoContratacao = 100;
+  if(STATE.empresa.caixa<custoContratacao) return;
+  STATE.empresa.caixa -= custoContratacao;
+  STATE.funcionarios.push(criarFuncionario(tipo));
+  adicionarLog("👤 Novo funcionário contratado: "+tipo);
+  render();
+}
+function demitirFuncionario(id){
+  STATE.funcionarios = STATE.funcionarios.filter(f=>f.id!==id);
+  render();
+}
+function comprarIngrediente(id, qtd){
+  const ing = STATE.ingredientes[id];
+  const custo = ing.preco*qtd;
+  if(STATE.empresa.caixa<custo) return;
+  STATE.empresa.caixa -= custo;
+  ing.qtd += qtd;
+  render();
+}
+function melhorarLoja(lojaId, campo){
+  const loja = STATE.lojas.find(l=>l.id===lojaId);
+  const custos = {limpeza:0, decoracao:150, capacidade:500, eficiencia:200};
+  const custo = custos[campo]||100;
+  if(STATE.empresa.caixa<custo) return;
+  STATE.empresa.caixa -= custo;
+  if(campo==="capacidade") loja.capacidade += 10;
+  else loja[campo] = Math.min(100, loja[campo]+10);
+  render();
+}
+
+/* ============================ COMMUNICATION.JS (telefone/fax/e-mail) ============================ */
+function aceitarProposta(id){
+  const prop = STATE.propostas.find(p=>p.id===id);
+  if(!prop) return;
+  const tpl = DATA.propostasTemplates[prop.templateIdx];
+  if(tpl) tpl.aceitar(STATE);
+  STATE.propostas = STATE.propostas.filter(p=>p.id!==id);
+  adicionarLog("✔ Proposta aceita: "+prop.texto);
+  mostrarToast("Proposta aceita!");
+  tocarSom("dinheiro");
+  render();
+}
+function recusarProposta(id){
+  STATE.propostas = STATE.propostas.filter(p=>p.id!==id);
+  adicionarLog("✘ Proposta recusada.");
+  render();
+}
+
+/* ============================ CD-ROM DE EXPANSÃO ============================ */
+function instalarExpansionPack(){
+  if(STATE.expansionPackInstalado) return;
+  const bar = document.getElementById("cdromBar");
+  const status = document.getElementById("cdromStatus");
+  const btn = document.getElementById("cdromBtn");
+  if(!bar) return;
+  btn.disabled = true;
+  let pct = 0;
+  status.textContent = "Instalando...";
+  tocarSom("clique");
+  const timer = setInterval(()=>{
+    pct += 4+Math.floor(Math.random()*8);
+    if(pct>=100){
+      pct=100;
+      clearInterval(timer);
+      STATE.expansionPackInstalado = true;
+      DATA.cardapioExpansion.forEach(p=>{ if(!STATE.menu[p.id]){ STATE.menu[p.id]=Object.assign({},p,{ativo:true}); STATE.vendasPorProduto[p.id]=0; } });
+      status.textContent = "Instalação concluída.";
+      adicionarLog("💿 Expansion Pack instalado: novos produtos e a pesquisa de Cafeteria liberados!");
+      mostrarToast("💿 Fast Food Tycoon Expansion Pack instalado!");
+      tocarSom("dinheiro");
+      render();
+    }
+    bar.style.width = pct+"%";
+    bar.textContent = "";
+    if(status.textContent!=="Instalação concluída.") status.textContent = "Instalando... "+pct+"%";
+  }, 220);
+}
+
+/* ============================ IMPRESSORA ============================ */
+function imprimirRelatorio(){
+  const status = document.getElementById("printerStatus");
+  const preview = document.getElementById("printerPreview");
+  if(!status) return;
+  tocarSom("clique");
+  status.textContent = "Preparando documento...";
+  preview.innerHTML = "";
+  setTimeout(()=>{
+    status.textContent = "Imprimindo página 1...";
+    setTimeout(()=>{
+      status.textContent = "Impressão concluída.";
+      preview.innerHTML = gerarRelatorioHTML();
+      tocarSom("notificacao");
+    }, 700);
+  }, 600);
+}
+function gerarRelatorioHTML(){
+  const s = STATE;
+  const topProdutos = Object.entries(s.vendasPorProduto).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([id,qtd])=>`${(s.menu[id]?s.menu[id].nome:id)}: ${qtd} un.`).join("<br>");
+  return `<div class="paper-report">
+    <h3>${s.empresa.nome} — Relatório Gerencial</h3>
+    <p>Data: ${String(s.dia).padStart(2,"0")}/${String(s.mes).padStart(2,"0")}/${s.ano}</p>
+    <p>Caixa atual: ${fmtMoney(s.empresa.caixa)}</p>
+    <p>Reputação: ${s.empresa.reputacao.toFixed(0)}/100</p>
+    <p>Lojas ativas: ${s.lojas.length}</p>
+    <p>Funcionários: ${s.funcionarios.length}</p>
+    <p>Clientes atendidos (total): ${s.totalClientesAtendidos}</p>
+    <p><b>Produtos mais vendidos:</b><br>${topProdutos||"Sem dados ainda."}</p>
+  </div>`;
+}
+
+/* ============================ SONS RETRÔ (Web Audio, sem arquivos externos) ============================ */
+let somAtivo = true;
+let audioCtx = null;
+function tocarSom(tipo){
+  if(!somAtivo) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    const presets = {
+      clique:{freq:600, dur:0.05, type:"square"},
+      erro:{freq:140, dur:0.25, type:"sawtooth"},
+      inicializacao:{freq:440, dur:0.4, type:"triangle"},
+      dinheiro:{freq:880, dur:0.15, type:"square"},
+      notificacao:{freq:1000, dur:0.1, type:"sine"},
+    };
+    const p = presets[tipo]||presets.clique;
+    o.type = p.type; o.frequency.value = p.freq;
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+p.dur);
+    o.start(); o.stop(audioCtx.currentTime+p.dur);
+  }catch(e){ /* áudio indisponível — ignora silenciosamente */ }
+}
+
+/* ============================ MINI-JOGOS ============================ */
+let minigameEstado = { pontos:0, ativo:false, timer:null };
+function iniciarMinigame(tipo){
+  const area = document.getElementById("minigameArea");
+  const placar = document.getElementById("minigamePlacar");
+  if(!area) return;
+  area.innerHTML=""; minigameEstado.pontos=0; minigameEstado.ativo=true;
+  placar.textContent = "Pontos: 0 (15s)";
+  let tempo = 15;
+  const emojis = {caixa:"💵", montagem:"🍔", limpeza:"🧽"};
+  function spawn(){
+    if(!minigameEstado.ativo) return;
+    const alvo = document.createElement("div");
+    alvo.className="minigame-target";
+    alvo.textContent = emojis[tipo]||"⭐";
+    alvo.style.left = Math.random()*85+"%";
+    alvo.style.top = Math.random()*80+"%";
+    alvo.addEventListener("click", ()=>{
+      minigameEstado.pontos++;
+      placar.textContent = "Pontos: "+minigameEstado.pontos+" ("+tempo+"s)";
+      alvo.remove();
+      tocarSom("dinheiro");
+      spawn();
+    });
+    area.appendChild(alvo);
+  }
+  spawn();
+  const contagem = setInterval(()=>{
+    tempo--;
+    placar.textContent = "Pontos: "+minigameEstado.pontos+" ("+tempo+"s)";
+    if(tempo<=0){
+      clearInterval(contagem);
+      minigameEstado.ativo=false;
+      area.innerHTML = "<div style='padding:20px;text-align:center;'>Fim de jogo! Pontuação: "+minigameEstado.pontos+"</div>";
+      const recompensa = minigameEstado.pontos*15;
+      STATE.empresa.caixa += recompensa;
+      adicionarLog(`🎮 Minijogo concluído (${tipo}): +${fmtMoney(recompensa)} de bônus.`);
+      mostrarToast("Minijogo concluído! +"+fmtMoney(recompensa));
+      render();
+    }
+  },1000);
+}
+
+/* ============================ UI.JS (janelas, render, drag) ============================ */
+const windowDefs = {
+  restaurant:{titulo:"🏪 Restaurante", icon:"🏪"},
+  menu:{titulo:"📋 Cardápio", icon:"📋"},
+  employees:{titulo:"👥 Funcionários", icon:"👥"},
+  inventory:{titulo:"📦 Estoque", icon:"📦"},
+  marketing:{titulo:"📣 Marketing", icon:"📣"},
+  research:{titulo:"🔬 Pesquisa", icon:"🔬"},
+  finances:{titulo:"💰 Finanças", icon:"💰"},
+  expansion:{titulo:"🗺️ Expansão", icon:"🗺️"},
+  competitors:{titulo:"🏁 Concorrentes", icon:"🏁"},
+  achievements:{titulo:"🏆 Conquistas", icon:"🏆"},
+  communication:{titulo:"📞 Central de Comunicação", icon:"📞"},
+  newspaper:{titulo:"📰 Burger Times - Notícias", icon:"📰"},
+  market:{titulo:"🏆 Mercado de Fast Food", icon:"🏆"},
+  documents:{titulo:"📁 Meus Documentos", icon:"📁"},
+  printer:{titulo:"🖨️ Impressora", icon:"🖨️"},
+  cdrom:{titulo:"💿 Fast Food Tycoon Expansion Pack", icon:"💿"},
+  reports:{titulo:"📊 Relatórios Gerenciais", icon:"📊"},
+  minigames:{titulo:"🎮 Mini-jogos", icon:"🎮"},
+};
+let openWindows = {}; // id -> {el, minimized}
+let zTop = 20;
+
+function abrirJanela(id){
+  tocarSom("clique");
+  if(openWindows[id]){
+    trazerFrente(id);
+    return;
+  }
+  const def = windowDefs[id];
+  const el = document.createElement("div");
+  el.className="window";
+  el.style.left = (60+Object.keys(openWindows).length*24)+"px";
+  el.style.top = (60+Object.keys(openWindows).length*20)+"px";
+  el.style.width = "480px";
+  el.style.height = "420px";
+  el.style.zIndex = ++zTop;
+  el.innerHTML = `
+    <div class="titlebar" data-id="${id}">
+      <span class="ticon">${def.icon}</span><span>${def.titulo}</span>
+      <div class="tclose" data-close="${id}">✕</div>
+    </div>
+    <div class="win-body" id="body_${id}"></div>
+  `;
+  document.getElementById("windowsLayer").appendChild(el);
+  openWindows[id] = {el};
+  tornarArrastavel(el);
+  el.querySelector("[data-close]").addEventListener("click", ()=>fecharJanela(id));
+  el.addEventListener("mousedown", ()=>trazerFrente(id));
+  atualizarTaskbar();
+  renderJanela(id);
+}
+function fecharJanela(id){
+  if(!openWindows[id]) return;
+  openWindows[id].el.remove();
+  delete openWindows[id];
+  atualizarTaskbar();
+}
+function trazerFrente(id){
+  if(!openWindows[id]) return;
+  openWindows[id].el.style.zIndex = ++zTop;
+}
+function tornarArrastavel(el){
+  const bar = el.querySelector(".titlebar");
+  let dragging=false, ox=0, oy=0;
+  bar.addEventListener("mousedown", e=>{
+    dragging=true; ox=e.clientX-el.offsetLeft; oy=e.clientY-el.offsetTop;
+    trazerFrente(bar.dataset.id);
+  });
+  window.addEventListener("mousemove", e=>{
+    if(!dragging) return;
+    el.style.left = Math.max(0, e.clientX-ox)+"px";
+    el.style.top = Math.max(46, e.clientY-oy)+"px";
+  });
+  window.addEventListener("mouseup", ()=>dragging=false);
+}
+function atualizarTaskbar(){
+  const box = document.getElementById("taskbarItems");
+  box.innerHTML="";
+  Object.keys(openWindows).forEach(id=>{
+    const b=document.createElement("button");
+    b.className="win95 taskbtn";
+    b.textContent = windowDefs[id].icon+" "+windowDefs[id].titulo.replace(/^\S+\s/,"");
+    b.addEventListener("click", ()=>trazerFrente(id));
+    box.appendChild(b);
+  });
+}
+
+function renderJanela(id){
+  if(!openWindows[id]) return;
+  const body = document.getElementById("body_"+id);
+  const s = STATE;
+  if(id==="restaurant"){
+    body.innerHTML = s.lojas.map(loja=>`
+      <div class="card">
+        <b>${loja.nome}</b> — ${loja.cidade} <span class="tag">Nível ${loja.nivel}</span>
+        <div class="grid2" style="margin-top:6px;">
+          <div>Capacidade: ${loja.capacidade}<div class="bar-outer"><div class="bar-inner" style="width:${Math.min(100,loja.capacidade/2)}%"></div></div></div>
+          <div>Limpeza: ${loja.limpeza}<div class="bar-outer"><div class="bar-inner" style="width:${loja.limpeza}%; background:${loja.limpeza<40?'#a00000':'#008000'}"></div></div></div>
+          <div>Decoração: ${loja.decoracao}<div class="bar-outer"><div class="bar-inner" style="width:${loja.decoracao}%"></div></div></div>
+          <div>Eficiência: ${loja.eficiencia}<div class="bar-outer"><div class="bar-inner" style="width:${loja.eficiencia}%"></div></div></div>
+        </div>
+        <div class="small">Clientes hoje: ${loja.clientesHoje} · Espera média: ${loja.esperaMedia} min</div>
+        <div class="row" style="margin-top:6px;">
+          <button class="win95" onclick="melhorarLoja('${loja.id}','limpeza')">Limpar (Grátis)</button>
+          <button class="win95" onclick="melhorarLoja('${loja.id}','decoracao')">Decorar ($150)</button>
+          <button class="win95" onclick="melhorarLoja('${loja.id}','capacidade')">Ampliar ($500)</button>
+          <button class="win95" onclick="melhorarLoja('${loja.id}','eficiencia')">Treinar equipe ($200)</button>
+        </div>
+      </div>
+    `).join("");
+  }
+  else if(id==="menu"){
+    body.innerHTML = `<h3>Cardápio</h3><table class="data"><tr><th>Item</th><th>Custo</th><th>Preço</th><th>Qualidade</th><th>Ativo</th></tr>`+
+      Object.values(s.menu).map(m=>`
+      <tr>
+        <td>${m.nome}</td>
+        <td>$${m.custo.toFixed(2)}</td>
+        <td><input class="win95" style="width:60px" type="number" step="0.5" value="${m.preco.toFixed(2)}" onchange="STATE.menu['${m.id}'].preco=parseFloat(this.value)||0"></td>
+        <td>${m.qualidade}</td>
+        <td><input type="checkbox" ${m.ativo?"checked":""} onchange="STATE.menu['${m.id}'].ativo=this.checked"></td>
+      </tr>`).join("")+`</table>`;
+  }
+  else if(id==="employees"){
+    body.innerHTML = `<h3>Equipe (${s.funcionarios.length})</h3>
+      <div class="row">
+        <button class="win95" onclick="contratarFuncionario('Caixa')">+ Caixa ($100)</button>
+        <button class="win95" onclick="contratarFuncionario('Cozinheiro')">+ Cozinheiro ($100)</button>
+        <button class="win95" onclick="contratarFuncionario('Faxineiro')">+ Faxineiro ($100)</button>
+        <button class="win95" onclick="contratarFuncionario('Gerente')">+ Gerente ($100)</button>
+      </div>
+      <table class="data"><tr><th>Nome</th><th>Tipo</th><th>Personalidade</th><th>Contratado em</th><th>Salário</th><th>Exp.</th><th>Vel.</th><th>Humor</th><th>Cansaço</th><th></th></tr>`+
+      s.funcionarios.map(f=>{
+        const perso = DATA.personalidades.find(p=>p.id===f.personalidade)||{nome:"-",desc:""};
+        const dc = f.dataContratacao||{dia:1,mes:1,ano:s.ano};
+        return `
+        <tr>
+          <td>${f.nome}</td><td>${f.tipo}</td>
+          <td title="${perso.desc}">${perso.nome}</td>
+          <td>${String(dc.dia).padStart(2,"0")}/${String(dc.mes).padStart(2,"0")}/${dc.ano}</td>
+          <td>$${f.salario}/mês</td><td>${f.experiencia}</td>
+          <td>${f.velocidade}</td><td>${f.humor}</td><td>${f.cansaco}</td>
+          <td><button class="win95" onclick="demitirFuncionario('${f.id}')">Demitir</button></td>
+        </tr>`;}).join("")+`</table>`;
+  }
+  else if(id==="inventory"){
+    body.innerHTML = `<h3>Estoque</h3><table class="data"><tr><th>Ingrediente</th><th>Qtd.</th><th>Preço</th><th>Consumo/dia</th><th>Comprar</th></tr>`+
+      Object.values(s.ingredientes).map(i=>`
+        <tr>
+          <td>${i.nome}</td><td class="${i.qtd<i.consumoDia?'badge-bad':'badge-ok'}">${i.qtd.toFixed(0)}</td>
+          <td>$${i.preco.toFixed(2)}</td><td>${i.consumoDia}</td>
+          <td><button class="win95" onclick="comprarIngrediente('${i.id}',20)">+20 ($${(i.preco*20).toFixed(0)})</button></td>
+        </tr>`).join("")+`</table>`;
+  }
+  else if(id==="marketing"){
+    body.innerHTML = `<h3>Campanhas de Marketing</h3>
+      <div class="grid2">${DATA.campanhas.map(c=>`
+        <div class="card">
+          <b>${c.nome}</b><div class="small">Custo $${c.custo} · +${c.boost}% clientes · ${c.duracao} dias</div>
+          <button class="win95" onclick="lancarCampanha('${c.id}')" ${s.empresa.caixa<c.custo?"disabled":""}>Lançar</button>
+        </div>`).join("")}</div>
+      <h3>Ativas</h3>
+      ${s.campanhasAtivas.length? s.campanhasAtivas.map(c=>`<div class="tag">${c.nome} (${c.duracao}d restantes)</div>`).join(" "): "<div class='small'>Nenhuma campanha ativa.</div>"}`;
+  }
+  else if(id==="research"){
+    body.innerHTML = `<h3>Árvore de Pesquisa</h3><div class="grid2">`+
+      DATA.pesquisas.map(p=>{
+        const feita = s.pesquisasFeitas.includes(p.id);
+        const bloqueada = p.requerExpansao && !s.expansionPackInstalado;
+        return `<div class="card">
+          <b>${p.nome}</b> ${bloqueada?'<span class="tag">Requer Expansion Pack</span>':''}<div class="small">${p.desc}</div>
+          <div class="small">Custo: $${p.custo}</div>
+          <button class="win95" onclick="comprarPesquisa('${p.id}')" ${feita||bloqueada||s.empresa.caixa<p.custo?"disabled":""}>${feita?"✔ Concluída":"Pesquisar"}</button>
+        </div>`;
+      }).join("")+`</div>`;
+  }
+  else if(id==="finances"){
+    const hist = s.empresa.historico.slice(-30);
+    body.innerHTML = `<h3>Finanças</h3>
+      <div class="grid2">
+        <div>Caixa: <b>$${s.empresa.caixa.toFixed(2)}</b></div>
+        <div>Lucro hoje: <b>$${s.lucroDiaAtual.toFixed(2)}</b></div>
+      </div>
+      <canvas class="chart" id="chartLucro" width="440" height="140"></canvas>
+      <div class="small">Últimos ${hist.length} dias (lucro diário)</div>`;
+    setTimeout(()=>desenharGrafico(hist),0);
+  }
+  else if(id==="expansion"){
+    body.innerHTML = `<h3>Expansão — Novas Cidades</h3>
+      <div class="small">1995: cidades pequenas · 1998: grandes cidades · 2005: expansão internacional</div>
+      <div class="grid2">`+
+      DATA.cidades.map((c,idx)=>{
+        const custo = 3000+c.aluguel*5;
+        const bloqueada = s.ano < c.anoDisponivel;
+        return `<div class="card ${bloqueada?'locked-city':''}">
+          <b>${c.nome}</b> ${bloqueada?`<span class="tag">Libera em ${c.anoDisponivel}</span>`:""}
+          <div class="small">Pop: ${c.populacao.toLocaleString()} · Aluguel: $${c.aluguel} · Poder aquisitivo: ${c.poder}</div>
+          <div class="small">Custo de abertura: $${custo}</div>
+          <button class="win95" onclick="abrirNovaLoja(${idx})" ${(bloqueada||s.empresa.caixa<custo)?"disabled":""}>Abrir loja</button>
+        </div>`;
+      }).join("")+`</div>
+      <div class="small" style="margin-top:6px;">Lojas atuais: ${s.lojas.length}</div>`;
+  }
+  else if(id==="competitors"){
+    body.innerHTML = `<h3>Concorrentes</h3><table class="data"><tr><th>Empresa</th><th>Força</th><th>Lojas</th></tr>`+
+      s.concorrentes.map(c=>`<tr><td>${c.nome}</td><td>${c.forca}</td><td>${c.lojas}</td></tr>`).join("")+`</table>
+      <div class="small" style="margin-top:6px;">Pressão de mercado: ${s.mercadoCompeticao.toFixed(0)}%</div>`;
+  }
+  else if(id==="achievements"){
+    body.innerHTML = `<h3>Conquistas</h3><table class="data"><tr><th>Conquista</th><th>Status</th></tr>`+
+      DATA.conquistas.map(c=>`<tr><td>${c.nome}</td><td>${s.conquistasFeitas.includes(c.id)?'<span class="badge-ok">✔ Concluída</span>':'<span class="small">Pendente</span>'}</td></tr>`).join("")+`</table>`;
+  }
+  else if(id==="communication"){
+    body.innerHTML = `<h3>Central de Comunicação</h3>`+
+      (s.propostas.length? s.propostas.map(p=>`
+        <div class="comm-item">
+          <span class="ttag">${p.icone} ${p.tipo}</span>${p.texto}
+          <div class="row" style="margin-top:4px;">
+            <button class="win95" onclick="aceitarProposta('${p.id}')">Aceitar</button>
+            <button class="win95" onclick="recusarProposta('${p.id}')">Recusar</button>
+          </div>
+        </div>`).join("") : "<div class='small'>Nenhuma proposta pendente no momento. Novas propostas chegam por telefone, fax ou e-mail conforme os dias passam.</div>");
+  }
+  else if(id==="newspaper"){
+    body.innerHTML = `<div class="newspaper">
+      <h4>Burger Times</h4>
+      <div class="byline">Edição de ${String(s.dia).padStart(2,"0")}/${String(s.mes).padStart(2,"0")}/${s.ano}</div>`+
+      (s.noticias.length? s.noticias.slice(0,15).map(n=>`
+        <div class="headline">${n.texto}</div>
+        <div class="byline">${String(n.dia).padStart(2,"0")}/${String(n.mes).padStart(2,"0")}/${n.ano}</div>`).join("")
+        : "<p class='small'>Ainda não há notícias publicadas. Volte em alguns dias.</p>")+
+      `</div>`;
+  }
+  else if(id==="market"){
+    const jogador = {nome:s.empresa.nome+" (você)", forca:s.empresa.reputacao, lojas:s.lojas.length, popularidade:s.empresa.reputacao, eu:true};
+    const todos = [jogador, ...s.concorrentes].sort((a,b)=>(b.lojas*20+b.popularidade)-(a.lojas*20+a.popularidade));
+    body.innerHTML = `<h3>Mercado de Fast Food — Ranking</h3>`+
+      todos.map((c,i)=>`<div class="rank-row ${c.eu?'me':''}">
+        <span>#${i+1} ${c.logo||"🏢"} ${c.nome} ${c.estrategia?`<span class="small">(${c.estrategia})</span>`:""}</span>
+        <span>${c.lojas} loja(s) · Pop. ${Math.round(c.popularidade)}</span>
+      </div>`).join("")+
+      `<div class="small" style="margin-top:8px;">Pressão de mercado atual: ${s.mercadoCompeticao.toFixed(0)}%</div>`;
+  }
+  else if(id==="documents"){
+    const docs = [
+      {icon:"📄", nome:"Contrato_Aluguel.txt"},
+      {icon:"📊", nome:"Relatorio_Anual.xls"},
+      {icon:"📰", nome:"Recortes_Jornal.doc"},
+      {icon:"💾", nome:"Backup_Save.json"},
+    ];
+    body.innerHTML = `<h3>Meus Documentos</h3>`+
+      docs.map(d=>`<div class="doc-item" onclick="abrirJanela('${d.nome.includes('Relatorio')?'reports':(d.nome.includes('Jornal')?'newspaper':(d.nome.includes('Backup')?'finances':'documents'))}')"><span class="dicon">${d.icon}</span>${d.nome}</div>`).join("")+
+      `<div class="small" style="margin-top:8px;">Clique duas vezes... ou apenas uma, o mouse é antigo. Os documentos abrem a tela relacionada.</div>`;
+  }
+  else if(id==="printer"){
+    body.innerHTML = `<h3>Impressora</h3>
+      <button class="win95" id="printerBtn" onclick="imprimirRelatorio()">🖨️ Imprimir Relatório</button>
+      <p id="printerStatus" class="small">Pronta para imprimir.</p>
+      <div id="printerPreview"></div>`;
+  }
+  else if(id==="cdrom"){
+    body.innerHTML = `<h3>Fast Food Tycoon Expansion Pack</h3>
+      <div class="small">Conteúdo: Drive-thru, Delivery, Cafeteria, novos produtos e novos mapas.</div>
+      ${s.expansionPackInstalado?
+        "<p class='badge-ok' style='margin-top:10px;'>✔ Expansion Pack já instalado! Novos produtos disponíveis no Cardápio e a pesquisa de Cafeteria liberada.</p>" :
+        `<div style="margin-top:10px;">
+          <button class="win95" id="cdromBtn" onclick="instalarExpansionPack()">💿 Instalar</button>
+          <div class="progressbar-outer" style="margin-top:8px;"><div class="progressbar-inner" id="cdromBar"></div></div>
+          <p id="cdromStatus" class="small" style="margin-top:4px;">Aguardando instalação.</p>
+        </div>`}`;
+  }
+  else if(id==="reports"){
+    const hist = s.empresa.historico.slice(-30);
+    const topProdutos = Object.entries(s.vendasPorProduto).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topFuncs = [...s.funcionarios].sort((a,b)=>b.velocidade-a.velocidade).slice(0,5);
+    body.innerHTML = `<h3>Relatórios Gerenciais (estilo Office 98)</h3>
+      <div class="small">Crescimento da empresa: ${s.lojas.length} loja(s) · Caixa ${fmtMoney(s.empresa.caixa)}</div>
+      <canvas class="chart" id="chartReport" width="440" height="120"></canvas>
+      <h3>Produtos mais vendidos</h3>
+      <table class="data"><tr><th>Produto</th><th>Unidades vendidas</th></tr>`+
+      topProdutos.map(([id,qtd])=>`<tr><td>${s.menu[id]?s.menu[id].nome:id}</td><td>${qtd}</td></tr>`).join("")+
+      `</table>
+      <h3>Funcionários mais eficientes</h3>
+      <table class="data"><tr><th>Nome</th><th>Tipo</th><th>Velocidade</th><th>Personalidade</th></tr>`+
+      topFuncs.map(f=>`<tr><td>${f.nome}</td><td>${f.tipo}</td><td>${f.velocidade}</td><td>${(DATA.personalidades.find(p=>p.id===f.personalidade)||{}).nome||"-"}</td></tr>`).join("")+
+      `</table>`;
+    setTimeout(()=>desenharGraficoGenerico("chartReport", hist),0);
+  }
+  else if(id==="minigames"){
+    body.innerHTML = `<h3>Mini-jogos</h3>
+      <div class="row">
+        <button class="win95" onclick="iniciarMinigame('caixa')">💵 Caixa Rápido</button>
+        <button class="win95" onclick="iniciarMinigame('montagem')">🍔 Montagem de Hambúrguer</button>
+        <button class="win95" onclick="iniciarMinigame('limpeza')">🧽 Limpeza</button>
+      </div>
+      <div id="minigamePlacar" class="small" style="margin:6px 0;">Escolha um minijogo para começar.</div>
+      <div class="minigame-area" id="minigameArea"></div>`;
+  }
+}
+
+function desenharGrafico(hist){
+  const cv = document.getElementById("chartLucro");
+  if(!cv) return;
+  const ctx = cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(hist.length<2) return;
+  const max = Math.max(...hist.map(h=>h.lucro), 1);
+  const min = Math.min(...hist.map(h=>h.lucro), 0);
+  const range = (max-min)||1;
+  ctx.strokeStyle="#000080"; ctx.lineWidth=2; ctx.beginPath();
+  hist.forEach((h,i)=>{
+    const x = (i/(hist.length-1))*(cv.width-10)+5;
+    const y = cv.height-10 - ((h.lucro-min)/range)*(cv.height-20);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  // linha zero
+  const yZero = cv.height-10 - ((0-min)/range)*(cv.height-20);
+  ctx.strokeStyle="#808080"; ctx.setLineDash([2,2]);
+  ctx.beginPath(); ctx.moveTo(0,yZero); ctx.lineTo(cv.width,yZero); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function desenharGraficoGenerico(canvasId, hist){
+  const cv = document.getElementById(canvasId);
+  if(!cv) return;
+  const ctx = cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(hist.length<2) return;
+  const maxR = Math.max(...hist.map(h=>h.receita), 1);
+  const maxL = Math.max(...hist.map(h=>h.lucro), 1);
+  const minL = Math.min(...hist.map(h=>h.lucro), 0);
+  const range = (Math.max(maxR,maxL)-minL)||1;
+  function linha(campo, cor){
+    ctx.strokeStyle=cor; ctx.lineWidth=2; ctx.beginPath();
+    hist.forEach((h,i)=>{
+      const x = (i/(hist.length-1))*(cv.width-10)+5;
+      const y = cv.height-10 - ((h[campo]-minL)/range)*(cv.height-20);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  linha("receita","#006400");
+  linha("lucro","#000080");
+  ctx.fillStyle="#006400"; ctx.font="10px sans-serif"; ctx.fillText("Receita",6,12);
+  ctx.fillStyle="#000080"; ctx.fillText("Lucro",6,24);
+}
+
+function renderLog(){
+  const box = document.getElementById("logbox");
+  if(!box) return;
+  box.innerHTML = STATE.log.map(l=>`<div>${l}</div>`).join("");
+}
+
+function fmtMoney(v){ return "$"+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function render(){
+  if(!STATE) return;
+  document.getElementById("statMoney").textContent = fmtMoney(STATE.empresa.caixa);
+  document.getElementById("statProfit").textContent = fmtMoney(STATE.lucroDiaAtual);
+  document.getElementById("statRep").textContent = STATE.empresa.reputacao.toFixed(0)+"/100";
+  document.getElementById("statCustomers").textContent = STATE.clientesHojeAtual;
+  document.getElementById("statDate").textContent = `${String(STATE.dia).padStart(2,"0")}/${String(STATE.mes).padStart(2,"0")}/${STATE.ano}`;
+  Object.keys(openWindows).forEach(renderJanela);
+}
+
+/* ============================ SAVE.JS (export/import JSON, sem localStorage) ============================ */
+function exportarSave(){
+  const blob = new Blob([JSON.stringify(STATE,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download = `fastfoodtycoon_save_${STATE.empresa.nome.replace(/\s+/g,"_")}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  mostrarToast("💾 Jogo salvo (arquivo JSON baixado).");
+}
+function importarSave(file){
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const novo = JSON.parse(e.target.result);
+      STATE = novo;
+      migrarEstado(STATE);
+      mostrarToast("📂 Save carregado com sucesso!");
+      tocarSom("notificacao");
+      render();
+      renderLog();
+    }catch(err){
+      mostrarToast("Erro ao carregar o arquivo de save.");
+      tocarSom("erro");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ============================ LOOP PRINCIPAL ============================ */
+function gameLoop(){
+  if(!paused && speed>0 && STATE){
+    tickAccum += 16;
+    const intervalo = TICK_MS/speed;
+    if(tickAccum>=intervalo){
+      tickAccum=0;
+      simularDia();
+      render();
+    }
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+/* ============================ RELÓGIO REAL (taskbar) ============================ */
+function atualizarRelogio(){
+  const d = new Date();
+  document.getElementById("clock").textContent = d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+}
+setInterval(atualizarRelogio,1000);
+atualizarRelogio();
+
+/* ============================ EVENTOS DE UI ============================ */
+document.querySelectorAll("#speedGroup button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const val = parseInt(btn.dataset.speed);
+    speed = val;
+    paused = val===0;
+    document.querySelectorAll("#speedGroup button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  const menu = document.getElementById("startMenu");
+  menu.style.display = menu.style.display==="flex" ? "none":"flex";
+});
+document.querySelectorAll("#startMenu [data-open]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    abrirJanela(btn.dataset.open);
+    document.getElementById("startMenu").style.display="none";
+  });
+});
+document.getElementById("soundToggle").addEventListener("click", ()=>{
+  somAtivo = !somAtivo;
+  document.getElementById("soundToggle").textContent = somAtivo ? "🔊" : "🔇";
+  if(somAtivo) tocarSom("clique");
+});
+document.getElementById("btnSave").addEventListener("click", exportarSave);
+document.getElementById("btnLoad").addEventListener("click", ()=>document.getElementById("loadFile").click());
+document.getElementById("loadFile").addEventListener("change", e=>{
+  if(e.target.files[0]) importarSave(e.target.files[0]);
+});
+document.addEventListener("click", e=>{
+  if(!e.target.closest("#startMenu") && !e.target.closest("#startBtn")){
+    document.getElementById("startMenu").style.display="none";
+  }
+});
+
+/* Icones na área de trabalho (atalhos) */
+const deskIconDefs = [
+  {id:"restaurant", label:"Restaurante", icon:"🏪"},
+  {id:"finances", label:"Finanças", icon:"💰"},
+  {id:"expansion", label:"Expansão", icon:"🗺️"},
+  {id:"communication", label:"Central de Comunicação", icon:"📞"},
+  {id:"newspaper", label:"Jornal da Cidade", icon:"📰"},
+  {id:"market", label:"Ranking Empresarial", icon:"🏆"},
+  {id:"documents", label:"Meus Documentos", icon:"📁"},
+  {id:"printer", label:"Impressora", icon:"🖨️"},
+  {id:"cdrom", label:"CD-ROM de Expansões", icon:"💿"},
+];
+const deskIconsBox = document.getElementById("deskIcons");
+deskIconDefs.forEach((d,i)=>{
+  const el = document.createElement("div");
+  el.className="icon-desktop";
+  el.style.left="12px"; el.style.top=(60+i*80)+"px";
+  el.innerHTML = `<div class="box">${d.icon}</div><div>${d.label}</div>`;
+  el.addEventListener("dblclick", ()=>abrirJanela(d.id));
+  deskIconsBox.appendChild(el);
+});
+
+/* Janela de log flutuante fixa (opcional) — cria uma pequena janela de eventos */
+function criarJanelaLog(){
+  const el = document.createElement("div");
+  el.className="window";
+  el.style.left="600px"; el.style.top="60px"; el.style.width="320px"; el.style.height="220px";
+  el.style.zIndex = ++zTop;
+  el.innerHTML = `
+    <div class="titlebar" data-id="logwin"><span class="ticon">📜</span><span>Eventos & Log</span></div>
+    <div class="win-body"><div id="logbox"></div></div>`;
+  document.getElementById("windowsLayer").appendChild(el);
+  tornarArrastavel(el);
+}
+
+/* ============================ INICIALIZAÇÃO ============================ */
+function iniciarJogo(){
+  let nome = prompt("Bem-vindo ao Fast Food Tycoon 95!\n\nDigite o nome da sua empresa:", "Lanches do Zé");
+  if(!nome) nome = "Minha Rede de Fast Food";
+  STATE = novoEstadoInicial(nome);
+  migrarEstado(STATE);
+  criarJanelaLog();
+  abrirJanela("restaurant");
+  abrirJanela("finances");
+  render();
+  mostrarToast("Bem-vindo, "+nome+"! Boa sorte no ramo do fast food.");
+  tocarSom("inicializacao");
+}
+iniciarJogo();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
